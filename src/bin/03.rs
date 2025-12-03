@@ -7,32 +7,9 @@ pub fn parse_input(s: &str) -> impl Iterator<Item = &[u8]> {
 pub fn part_one(input: &str) -> Option<u64> {
     return Some(parse_input(input).fold(0u64, |acc, cur| acc + highest_combo(cur) as u64));
     fn highest_combo(ints: &[u8]) -> u8 {
-        let mut first = ints[0] - '0' as u8;
-        let mut idx = 0;
-        let mut second = 0;
-        let len = ints.len();
-        for i in 1..len - 1 {
-            let cur = ints[i] - ('0' as u8);
-            if cur == 9 {
-                first = 9;
-                idx = i;
-                break;
-            }
-            if cur > first {
-                first = cur;
-                idx = i;
-            }
-        }
-        for i in idx + 1..len {
-            let cur = ints[i] - ('0' as u8);
-            if cur == 9 {
-                return first * 10 + cur;
-            }
-            if cur > second {
-                second = cur;
-            }
-        }
-        return first * 10 + second;
+        let first_idx = max_idx(&ints[..ints.len() - 1]);
+        let second_idx = max_idx(&ints[first_idx + 1..]) + first_idx + 1;
+        (ints[first_idx] - '0' as u8) * 10 + (ints[second_idx] - '0' as u8)
     }
 }
 
@@ -63,21 +40,22 @@ pub fn part_two(input: &str) -> Option<u64> {
         }
         return result;
     }
-    fn max_idx(arr: &[u8]) -> usize {
-        let mut max = 0;
-        let mut max_idx = 0;
-        for i in 0..arr.len() {
-            let cur = arr[i];
-            if cur == '9' as u8 {
-                return i;
-            }
-            if cur > max {
-                max = cur;
-                max_idx = i;
-            }
+}
+
+fn max_idx(arr: &[u8]) -> usize {
+    let mut max = 0;
+    let mut max_idx = 0;
+    for i in 0..arr.len() {
+        let cur = arr[i];
+        if cur == '9' as u8 {
+            return i;
         }
-        return max_idx;
+        if cur > max {
+            max = cur;
+            max_idx = i;
+        }
     }
+    return max_idx;
 }
 
 #[cfg(test)]
@@ -88,6 +66,12 @@ mod tests {
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("inputs", DAY));
         assert_eq!(result, Some(17766));
+    }
+
+    #[test]
+    fn test_part_one_sample() {
+        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(357));
     }
 
     #[test]
