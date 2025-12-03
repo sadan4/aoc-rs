@@ -42,7 +42,20 @@ pub fn part_two(input: &str) -> Option<u64> {
         let mut result = 0;
         let mut last_idx = 0;
         for step in (0..=11).rev() {
-            let possible = &ints[last_idx..ints.len() - step];
+            let start = last_idx;
+            let end = ints.len() - step;
+            // not sure if this is an actual optimization
+            if end - start == 1 {
+                let mut step = step as i8;
+                // would this be faster if it was raw indexing instead of iter?
+                let ret = ints[last_idx..].iter().fold(result, |acc, &cur| {
+                    let this = ((cur - '0' as u8) as u64) * 10u64.pow(step as u32);
+                    step -= 1;
+                    this + acc
+                });
+                debug_assert_eq!(step, -1)
+            }
+            let possible = &ints[start..end];
             let cur_idx = last_idx + max_idx(possible);
             result += (ints[cur_idx] - '0' as u8) as u64 * 10u64.pow(step as u32);
             last_idx = cur_idx + 1;
@@ -81,5 +94,11 @@ mod tests {
         let result = part_two(&advent_of_code::template::read_file("inputs", DAY));
         // sample result
         assert_eq!(result, Some(176582889354075));
+    }
+
+    #[test]
+    fn test_part_two_sample() {
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(3121910778619));
     }
 }
