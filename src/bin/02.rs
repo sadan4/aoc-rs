@@ -1,6 +1,5 @@
 use std::ops::RangeInclusive;
-
-use advent_of_code::util::math::count_digits;
+use advent_of_code::util::math::{count_digits, int_to_digits};
 
 advent_of_code::solution!(2);
 
@@ -56,8 +55,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         if id < 10 {
             return true;
         }
-        let i_love_rust_lifetimes = format!("{id}");
-        let digits = i_love_rust_lifetimes.chars().collect::<Vec<_>>();
+        let digits = int_to_digits(id);
         let num_digits = digits.len();
         let ret = compute_chunk_sizes(num_digits).iter().all(|&it| {
             let mut chunks = digits.chunks(it as usize);
