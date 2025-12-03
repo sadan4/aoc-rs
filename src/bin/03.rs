@@ -53,7 +53,8 @@ pub fn part_two(input: &str) -> Option<u64> {
                     step -= 1;
                     this + acc
                 });
-                debug_assert_eq!(step, -1)
+                debug_assert_eq!(step, -1);
+                return ret;
             }
             let possible = &ints[start..end];
             let cur_idx = last_idx + max_idx(possible);
