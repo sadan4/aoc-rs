@@ -59,19 +59,36 @@ pub fn part_two(input: &str) -> Option<u64> {
         let i_love_rust_lifetimes = format!("{id}");
         let digits = i_love_rust_lifetimes.chars().collect::<Vec<_>>();
         let num_digits = digits.len();
-        let ret = (1..num_digits)
-            .filter(|&it| (num_digits as f64 / (it as f64)) % 1.0 == 0.0)
-            .all(|it| {
-                let chunks = digits.chunks(it).collect::<Vec<_>>();
-                let first = chunks[0];
-                for i in chunks {
-                    if i != first {
-                        return true;
-                    }
+        let ret = compute_chunk_sizes(num_digits).iter().all(|&it| {
+            let mut chunks = digits.chunks(it as usize);
+            let first = chunks.nth(0).unwrap();
+            for it in chunks {
+                if it != first {
+                    return true;
                 }
-                return false;
-            });
+            }
+            return false;
+        });
         ret
+    }
+
+    #[allow(unused)]
+    fn compute_chunk_sizes(size: usize) -> &'static [u8] {
+        match size {
+            2 | 3 | 5 | 7 | 11 | 13 | 17 | 19 => &[1],
+            4 => &[2, 1],
+            6 => &[2, 3, 1],
+            8 => &[2, 4, 1],
+            9 => &[3, 1],
+            10 => &[2, 5, 1],
+            12 => &[2, 3, 4, 6, 1],
+            14 => &[2, 7, 1],
+            15 => &[3, 5, 1],
+            16 => &[2, 4, 8, 1],
+            18 => &[2, 3, 6, 9, 1],
+            20 => &[2, 4, 5, 10, 1],
+            _ => unreachable!(),
+        }
     }
 }
 
