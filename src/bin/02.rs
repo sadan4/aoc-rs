@@ -1,42 +1,31 @@
-use std::ops::RangeInclusive;
-use advent_of_code::util::math::{count_digits, int_to_digits};
+#![feature(impl_trait_in_bindings)]
+use advent_of_code::util::math::{
+    count_digits_u64, int_to_digits_u64,
+};
 
 advent_of_code::solution!(2);
 
-fn parse_input(input: &str) -> Vec<RangeInclusive<i64>> {
-    input
-        .trim()
-        .split(',')
-        .map(|it| {
-            let arr = it
-                .trim()
-                .split('-')
-                .map(|it| {
-                    it.parse::<i64>()
-                        .expect(&*format!("failed to parse: {}", it))
-                })
-                .collect::<Vec<_>>();
-            let start = arr[0];
-            let end = arr[1];
-            start..=end
-        })
-        .collect()
+fn parse_input(input: &str) -> impl Iterator<Item = u64> + use<'_> {
+    input.trim().split(',').flat_map(|it| {
+        let mut arr = it
+            .trim()
+            .split('-')
+            .map(|it| it.parse::<u64>().expect("failed to parse number"));
+        let start = arr.next().unwrap();
+        let end = arr.next().unwrap();
+        debug_assert!(arr.next().is_none());
+        start..=end
+    })
 }
 
 pub fn part_one(input: &str) -> Option<u64> {
-    return Some(
-        parse_input(input)
-            .into_iter()
-            .flat_map(|it| it.collect::<Vec<_>>())
-            .filter(|it| !is_valid_id(*it))
-            .sum::<i64>() as u64,
-    );
-    fn is_valid_id(id: i64) -> bool {
-        let num_digits = count_digits(id);
+    return Some(parse_input(input).filter(|&it| !is_valid_id(it)).sum());
+    fn is_valid_id(id: u64) -> bool {
+        let num_digits = count_digits_u64(id);
         if num_digits % 2 == 1 {
             return true;
         }
-        let mask = 10i64.pow(num_digits / 2);
+        let mask = 10u64.pow(num_digits / 2);
         let top_digits = id / mask;
         let bottom_digits = id % mask;
         top_digits != bottom_digits
@@ -44,18 +33,13 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    return Some(
-        parse_input(input)
-            .into_iter()
-            .flat_map(|it| it.collect::<Vec<_>>())
-            .filter(|it| !is_valid_id(*it))
-            .sum::<i64>() as u64,
-    );
-    fn is_valid_id(id: i64) -> bool {
-        if id < 10 {
+    return Some(parse_input(input).filter(|&it| !is_valid_id(it)).sum());
+    fn is_valid_id(id: u64) -> bool {
+        // <= instead of < because 10 also happens to be valid
+        if id <= 10 {
             return true;
         }
-        let digits = int_to_digits(id);
+        let digits = int_to_digits_u64(id);
         let num_digits = digits.len();
         let ret = compute_chunk_sizes(num_digits).iter().all(|&it| {
             let mut chunks = digits.chunks(it as usize);

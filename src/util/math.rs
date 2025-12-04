@@ -68,21 +68,14 @@ pub fn count_digits_u64(u: u64) -> u32 {
 }
 
 pub fn count_digits(n: i64) -> u32 {
-    count_digits_u64(i64_abs_to_u64(n))
-}
-
-pub fn i64_abs_to_u64(n: i64) -> u64 {
-    if n >= 0 {
-        n as u64
-    } else if n == i64::MIN {
-        i64::MAX as u64 + 1
-    } else {
-        (-n) as u64
-    }
+    count_digits_u64(n.unsigned_abs())
 }
 
 pub fn int_to_digits(n: i64) -> Vec<u8> {
-    let mut n = i64_abs_to_u64(n);
+    int_to_digits_u64(n.unsigned_abs())
+}
+
+pub fn int_to_digits_u64(mut n: u64) -> Vec<u8> {
     let mut count = count_digits_u64(n) as usize;
     // it can have at most 19 digits
     let mut ret = Vec::<u8>::with_capacity(count);
