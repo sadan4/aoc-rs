@@ -1,4 +1,3 @@
-#![feature(impl_trait_in_bindings)]
 use advent_of_code::util::math::{
     count_digits_u64, int_to_digits_u64,
 };
