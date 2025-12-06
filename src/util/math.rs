@@ -93,6 +93,17 @@ pub fn int_to_digits_u64(mut n: u64) -> Vec<u8> {
     ret
 }
 
+pub fn int_to_digits_u64_2(mut n: u64, mut count: usize, buf: &mut [u8]) {
+    loop {
+        count -= 1;
+        buf[count] = (n % 10) as u8;
+        n /= 10;
+        if n == 0 {
+            break;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     mod test_count_digits {

@@ -1,5 +1,5 @@
 use advent_of_code::util::math::{
-    count_digits_u64, int_to_digits_u64,
+    count_digits_u64, int_to_digits_u64_2,
 };
 
 advent_of_code::solution!(2);
@@ -38,8 +38,10 @@ pub fn part_two(input: &str) -> Option<u64> {
         if id <= 10 {
             return true;
         }
-        let digits = int_to_digits_u64(id);
-        let num_digits = digits.len();
+        let mut buf = [0u8; 20];
+        let num_digits = count_digits_u64(id) as usize;
+        int_to_digits_u64_2(id, num_digits, &mut buf);
+        let digits = &buf[..num_digits];
         let ret = compute_chunk_sizes(num_digits).iter().all(|&it| {
             let mut chunks = digits.chunks(it as usize);
             let first = chunks.nth(0).unwrap();
