@@ -1,6 +1,4 @@
-use advent_of_code::util::math::{
-    count_digits_u64, int_to_digits_u64_2,
-};
+use advent_of_code::util::math::count_digits_u64;
 
 advent_of_code::solution!(2);
 
@@ -38,40 +36,81 @@ pub fn part_two(input: &str) -> Option<u64> {
         if id <= 10 {
             return true;
         }
-        let mut buf = [0u8; 20];
         let num_digits = count_digits_u64(id) as usize;
-        int_to_digits_u64_2(id, num_digits, &mut buf);
-        let digits = &buf[..num_digits];
-        let ret = compute_chunk_sizes(num_digits).iter().all(|&it| {
-            let mut chunks = digits.chunks(it as usize);
-            let first = chunks.nth(0).unwrap();
-            for it in chunks {
-                if it != first {
-                    return true;
-                }
-            }
-            return false;
-        });
-        ret
-    }
-
-    #[allow(unused)]
-    fn compute_chunk_sizes(size: usize) -> &'static [u8] {
-        match size {
-            2 | 3 | 5 | 7 | 11 | 13 | 17 | 19 => &[1],
-            4 => &[2, 1],
-            6 => &[2, 3, 1],
-            8 => &[2, 4, 1],
-            9 => &[3, 1],
-            10 => &[2, 5, 1],
-            12 => &[2, 3, 4, 6, 1],
-            14 => &[2, 7, 1],
-            15 => &[3, 5, 1],
-            16 => &[2, 4, 8, 1],
-            18 => &[2, 3, 6, 9, 1],
-            20 => &[2, 4, 5, 10, 1],
-            _ => unreachable!(),
+        const fn divmod(n: u64, divisor: u64) -> (u64, u64) {
+            (n / divisor, n % divisor)
         }
+        macro_rules! check_single_digit {
+            () => {
+                'done: {
+                    let mut digits = id;
+                    let mask = 10;
+                    let (mut rest, left) = divmod(digits, mask);
+                    for _ in 1..num_digits {
+                        digits = rest;
+                        let (new_rest, it) = divmod(digits, mask);
+                        if it != left {
+                            break 'done true;
+                        }
+                        rest = new_rest;
+                    }
+                    break 'done false;
+                }
+            };
+        }
+        macro_rules! check_digit_with_num {
+            ($n:literal) => {
+                'done: {
+                    let mut digits = id;
+                    const MASK: u64 = 10u64.pow($n as u32);
+                    let (mut rest, left) = divmod(digits, MASK);
+                    for _ in 1..(num_digits / $n) {
+                        digits = rest;
+                        let (new_rest, it) = divmod(digits, MASK);
+                        if it != left {
+                            break 'done true;
+                        }
+                        rest = new_rest;
+                    }
+                    break 'done false;
+                }
+            };
+        }
+        match num_digits {
+            // these match arms must not be merged
+            // because if they are merged the compiler will not unroll the loops inside the macros
+            2 => {
+                return check_single_digit!();
+            }
+            3 => {
+                return check_single_digit!();
+            }
+            5 => {
+                return check_single_digit!();
+            }
+            7 => {
+                return check_single_digit!();
+            }
+            11 => {
+                return check_single_digit!();
+            }
+            4 => {
+                return check_digit_with_num!(2);
+            }
+            6 => {
+                return check_digit_with_num!(2) && check_digit_with_num!(3);
+            }
+            8 => {
+                return check_digit_with_num!(4);
+            }
+            9 => {
+                return check_digit_with_num!(3) && check_single_digit!();
+            }
+            10 => {
+                return check_digit_with_num!(2) && check_digit_with_num!(5);
+            }
+            _ => unreachable!(),
+        };
     }
 }
 
